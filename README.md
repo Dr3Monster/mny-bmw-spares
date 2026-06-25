@@ -41,6 +41,17 @@ Change `"MYBMW2026"` to anything you like, save the file, and re-upload it to Gi
 
 **Note on security:** this passcode only stops casual visitors from clicking into the stock editor — anyone who looks at the page's source code could find it. Don't store anything truly sensitive (banking info, personal documents, etc.) in this site.
 
+## Adding photos to parts
+
+Each part can have a photo, shown on the public stock list. In the staff page, under each part there's a **Photo URL** field and an **Upload photo** button:
+
+- **Upload photo** — pick a photo straight from your phone/computer. It gets embedded directly into the stock data (best for getting started quickly). Keep photos under 1.5MB each — the page will warn you if a photo is too big, since very large photos make the site slow to load for customers.
+- **Photo URL field** — instead of uploading, you can type a path or link, e.g. `images/eng-001.jpg` if you've uploaded photos to an `images` folder in the GitHub repo, or a full link (`https://...`) if the photo is hosted elsewhere (Google Photos, Imgur, etc.).
+
+Recommended approach for the best-looking, fastest site: create an `images` folder in your repo, upload your part photos there (resized to roughly 800px wide), and reference them by filename. Uploading photos via the admin page is the quickest way to get started, but embedded photos make the `data.json` file larger over time.
+
+Parts without a photo show a clean placeholder with their initials instead — no broken images on the live site.
+
 ## Adding or removing parts
 
 In the staff page, use **+ Add new part** to add a blank row you can fill in, or **Remove** on any row to delete it. Remember to Save, then Download + upload `data.json` to publish.

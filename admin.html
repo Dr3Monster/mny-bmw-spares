@@ -46,24 +46,7 @@
       <button id="resetBtn" class="secondary">Reload from data.json</button>
     </div>
 
-    <div style="overflow-x:auto;">
-      <table class="stock-table">
-        <thead>
-          <tr>
-            <th>Code</th>
-            <th>Part name</th>
-            <th>Category</th>
-            <th>Model</th>
-            <th>Condition</th>
-            <th>Price (R)</th>
-            <th>Qty</th>
-            <th>Stock status</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
+    <div id="cardsContainer"></div>
 
     <div class="save-bar">
       <span class="status-msg" id="statusMsg"></span>
@@ -114,26 +97,42 @@ document.getElementById("logoutBtn").addEventListener("click", ()=>{
 function rowHTML(item, idx){
   const stockClass = item.inStock ? "in" : "out";
   const stockLabel = item.inStock ? "In stock" : "Out of stock";
+  const imgTag = item.image
+    ? `<img class="img-preview" src="${item.image}" alt="" onerror="this.outerHTML='<div class=&quot;img-preview placeholder&quot;>No photo</div>'">`
+    : `<div class="img-preview placeholder">No photo</div>`;
   return `
-    <tr data-idx="${idx}">
-      <td><input type="text" class="f-id" value="${item.id}"></td>
-      <td><input type="text" class="f-name" value="${item.name}"></td>
-      <td><input type="text" class="f-category" value="${item.category}"></td>
-      <td><input type="text" class="f-model" value="${item.model}"></td>
-      <td><input type="text" class="f-condition" value="${item.condition}"></td>
-      <td><input type="number" class="f-price" value="${item.price}" min="0"></td>
-      <td><input type="number" class="f-qty" value="${item.qty}" min="0"></td>
-      <td><button class="toggle-stock ${stockClass}" data-idx="${idx}">${stockLabel}</button></td>
-      <td><button class="row-delete" data-idx="${idx}">Remove</button></td>
-    </tr>
+    <div class="admin-card" data-idx="${idx}">
+      <div class="img-cell">
+        ${imgTag}
+        <button type="button" class="upload-btn" data-idx="${idx}">Upload photo</button>
+        <input type="file" accept="image/*" class="file-input" data-idx="${idx}" style="display:none;">
+      </div>
+      <div>
+        <div class="field-grid">
+          <div><label>Code</label><input type="text" class="f-id" value="${item.id}"></div>
+          <div><label>Part name</label><input type="text" class="f-name" value="${item.name}"></div>
+          <div><label>Category</label><input type="text" class="f-category" value="${item.category}"></div>
+          <div><label>Fits model</label><input type="text" class="f-model" value="${item.model}"></div>
+          <div><label>Condition</label><input type="text" class="f-condition" value="${item.condition}"></div>
+          <div><label>Price (R)</label><input type="number" class="f-price" value="${item.price}" min="0"></div>
+          <div><label>Qty</label><input type="number" class="f-qty" value="${item.qty}" min="0"></div>
+          <div><label>Photo URL (optional)</label><input type="text" class="f-image" placeholder="images/example.jpg or https://…" value="${item.image || ""}"></div>
+        </div>
+        <div class="field-row-actions">
+          <button class="toggle-stock ${stockClass}" data-idx="${idx}" type="button">${stockLabel}</button>
+          <button class="row-delete" data-idx="${idx}" type="button">Remove</button>
+        </div>
+      </div>
+    </div>
   `;
 }
 
 function renderTable(){
-  document.getElementById("tableBody").innerHTML = items.map(rowHTML).join("");
+  document.getElementById("cardsContainer").innerHTML = items.map(rowHTML).join("");
 
   document.querySelectorAll(".toggle-stock").forEach(btn=>{
     btn.addEventListener("click", ()=>{
+      collectFromInputs();
       const idx = Number(btn.dataset.idx);
       items[idx].inStock = !items[idx].inStock;
       if (!items[idx].inStock) items[idx].qty = 0;
@@ -143,6 +142,7 @@ function renderTable(){
 
   document.querySelectorAll(".row-delete").forEach(btn=>{
     btn.addEventListener("click", ()=>{
+      collectFromInputs();
       const idx = Number(btn.dataset.idx);
       if (confirm(`Remove "${items[idx].name}" from the list?`)){
         items.splice(idx,1);
@@ -150,10 +150,36 @@ function renderTable(){
       }
     });
   });
+
+  document.querySelectorAll(".upload-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const idx = btn.dataset.idx;
+      document.querySelector(`.file-input[data-idx="${idx}"]`).click();
+    });
+  });
+
+  document.querySelectorAll(".file-input").forEach(input=>{
+    input.addEventListener("change", (e)=>{
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 1.5 * 1024 * 1024){
+        alert("Please choose a photo under 1.5MB — large photos make the stock file slow to load. Try a smaller image or compress it first.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        collectFromInputs();
+        const idx = Number(input.dataset.idx);
+        items[idx].image = reader.result;
+        renderTable();
+      };
+      reader.readAsDataURL(file);
+    });
+  });
 }
 
 function collectFromInputs(){
-  document.querySelectorAll("#tableBody tr").forEach(row=>{
+  document.querySelectorAll(".admin-card").forEach(row=>{
     const idx = Number(row.dataset.idx);
     items[idx].id = row.querySelector(".f-id").value.trim();
     items[idx].name = row.querySelector(".f-name").value.trim();
@@ -162,6 +188,8 @@ function collectFromInputs(){
     items[idx].condition = row.querySelector(".f-condition").value.trim();
     items[idx].price = Number(row.querySelector(".f-price").value) || 0;
     items[idx].qty = Number(row.querySelector(".f-qty").value) || 0;
+    const imageVal = row.querySelector(".f-image").value.trim();
+    if (imageVal) items[idx].image = imageVal;
   });
 }
 

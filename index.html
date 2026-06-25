@@ -68,18 +68,32 @@ function renderCategoryOptions(items){
   });
 }
 
+function initials(name){
+  return name.split(" ").filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+}
+
+function mediaHTML(item){
+  if (item.image){
+    return `<div class="card-media"><img src="${item.image}" alt="${item.name}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=\\'ph-icon\\'>${initials(item.name)}</span>'"></div>`;
+  }
+  return `<div class="card-media"><span class="ph-icon">${initials(item.name)}</span></div>`;
+}
+
 function cardHTML(item){
   const stockClass = item.inStock ? "in" : "out";
   const stockLabel = item.inStock ? "In stock" : "Out of stock";
   return `
     <div class="card">
-      <span class="id">${item.id}</span>
-      <h3>${item.name}</h3>
-      <span class="model">Fits: ${item.model}</span>
-      <span class="badge ${stockClass}">${stockLabel}</span>
-      <span class="price">${formatPrice(item.price)}</span>
-      <span class="meta">Condition: ${item.condition}${item.inStock && item.qty ? ` · Qty: ${item.qty}` : ""}</span>
-      ${item.notes ? `<span class="notes">${item.notes}</span>` : ""}
+      ${mediaHTML(item)}
+      <div class="card-body">
+        <span class="id">${item.id}</span>
+        <h3>${item.name}</h3>
+        <span class="model">Fits: ${item.model}</span>
+        <span class="badge ${stockClass}">${stockLabel}</span>
+        <span class="price">${formatPrice(item.price)}</span>
+        <span class="meta">Condition: ${item.condition}${item.inStock && item.qty ? ` · Qty: ${item.qty}` : ""}</span>
+        ${item.notes ? `<span class="notes">${item.notes}</span>` : ""}
+      </div>
     </div>
   `;
 }
