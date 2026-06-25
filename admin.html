@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Stock Manager — M&Y BMW Spares</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="m-stripe"></div>
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <div class="roundel"></div>
+      <div>
+        <h1>M&amp;Y BMW Spares</h1>
+        <p>Staff stock manager</p>
+      </div>
+    </div>
+    <nav class="site-nav">
+      <a href="index.html">Stock List</a>
+      <a href="admin.html" class="active">Staff Login</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div id="gate" class="admin-gate">
+    <h2>Staff Access</h2>
+    <p>Enter the staff passcode to manage stock.</p>
+    <input type="password" id="passcode" placeholder="Passcode">
+    <button id="enterBtn" style="width:100%;">Enter</button>
+    <p id="gateError" style="color:var(--m-red);font-size:0.85rem;display:none;margin-top:8px;">Wrong passcode, try again.</p>
+  </div>
+
+  <div id="panel" style="display:none;">
+    <div class="hero">
+      <h2>Stock Manager</h2>
+      <p>Tick items in or out of stock, edit prices and quantities, then save. Saved changes update the public stock list on this device immediately — use "Download data.json" to publish the changes for everyone (see instructions below).</p>
+    </div>
+
+    <div class="admin-toolbar">
+      <button id="addRowBtn">+ Add new part</button>
+      <button id="downloadBtn" class="secondary">⬇ Download data.json</button>
+      <button id="resetBtn" class="secondary">Reload from data.json</button>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table class="stock-table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Part name</th>
+            <th>Category</th>
+            <th>Model</th>
+            <th>Condition</th>
+            <th>Price (R)</th>
+            <th>Qty</th>
+            <th>Stock status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="save-bar">
+      <span class="status-msg" id="statusMsg"></span>
+      <button class="secondary" id="logoutBtn">Log out</button>
+      <button id="saveBtn">Save changes</button>
+    </div>
+
+    <p style="font-size:0.82rem;color:#5b6770;margin-top:24px;">
+      <strong>How publishing works:</strong> this page saves changes to this device only. To make new stock visible to everyone on the live website, click "Download data.json", then replace the <code>data.json</code> file in the GitHub repo with the downloaded one (upload it via github.com → your repo → "Add file" → "Upload files"). The site updates automatically a minute or two after that.
+    </p>
+  </div>
+</main>
+
+<footer>
+  M&amp;Y BMW Spares · Staff area
+</footer>
+
+<script src="common.js"></script>
+<script>
+// Simple client-side passcode gate. This is NOT secure (anyone could view-source
+// the passcode) — it is only meant to keep casual visitors from editing stock,
+// not to protect sensitive data. Change PASSCODE below to whatever you like.
+const PASSCODE = "MYBMW2026";
+
+let items = [];
+
+function checkPasscode(){
+  const val = document.getElementById("passcode").value;
+  if (val === PASSCODE){
+    document.getElementById("gate").style.display = "none";
+    document.getElementById("panel").style.display = "block";
+    sessionStorage.setItem("mny_admin_ok", "1");
+    init();
+  } else {
+    document.getElementById("gateError").style.display = "block";
+  }
+}
+
+document.getElementById("enterBtn").addEventListener("click", checkPasscode);
+document.getElementById("passcode").addEventListener("keydown", e=>{
+  if (e.key === "Enter") checkPasscode();
+});
+document.getElementById("logoutBtn").addEventListener("click", ()=>{
+  sessionStorage.removeItem("mny_admin_ok");
+  location.reload();
+});
+
+function rowHTML(item, idx){
+  const stockClass = item.inStock ? "in" : "out";
+  const stockLabel = item.inStock ? "In stock" : "Out of stock";
+  return `
+    <tr data-idx="${idx}">
+      <td><input type="text" class="f-id" value="${item.id}"></td>
+      <td><input type="text" class="f-name" value="${item.name}"></td>
+      <td><input type="text" class="f-category" value="${item.category}"></td>
+      <td><input type="text" class="f-model" value="${item.model}"></td>
+      <td><input type="text" class="f-condition" value="${item.condition}"></td>
+      <td><input type="number" class="f-price" value="${item.price}" min="0"></td>
+      <td><input type="number" class="f-qty" value="${item.qty}" min="0"></td>
+      <td><button class="toggle-stock ${stockClass}" data-idx="${idx}">${stockLabel}</button></td>
+      <td><button class="row-delete" data-idx="${idx}">Remove</button></td>
+    </tr>
+  `;
+}
+
+function renderTable(){
+  document.getElementById("tableBody").innerHTML = items.map(rowHTML).join("");
+
+  document.querySelectorAll(".toggle-stock").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const idx = Number(btn.dataset.idx);
+      items[idx].inStock = !items[idx].inStock;
+      if (!items[idx].inStock) items[idx].qty = 0;
+      renderTable();
+    });
+  });
+
+  document.querySelectorAll(".row-delete").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const idx = Number(btn.dataset.idx);
+      if (confirm(`Remove "${items[idx].name}" from the list?`)){
+        items.splice(idx,1);
+        renderTable();
+      }
+    });
+  });
+}
+
+function collectFromInputs(){
+  document.querySelectorAll("#tableBody tr").forEach(row=>{
+    const idx = Number(row.dataset.idx);
+    items[idx].id = row.querySelector(".f-id").value.trim();
+    items[idx].name = row.querySelector(".f-name").value.trim();
+    items[idx].category = row.querySelector(".f-category").value.trim();
+    items[idx].model = row.querySelector(".f-model").value.trim();
+    items[idx].condition = row.querySelector(".f-condition").value.trim();
+    items[idx].price = Number(row.querySelector(".f-price").value) || 0;
+    items[idx].qty = Number(row.querySelector(".f-qty").value) || 0;
+  });
+}
+
+document.getElementById("addRowBtn").addEventListener("click", ()=>{
+  collectFromInputs();
+  items.push({
+    id: "NEW-" + (items.length+1).toString().padStart(3,"0"),
+    name: "New part",
+    category: "Uncategorised",
+    model: "",
+    price: 0,
+    condition: "Used",
+    inStock: true,
+    qty: 1,
+    notes: ""
+  });
+  renderTable();
+});
+
+document.getElementById("saveBtn").addEventListener("click", ()=>{
+  collectFromInputs();
+  saveInventoryLocal(items);
+  const msg = document.getElementById("statusMsg");
+  msg.textContent = "Saved on this device ✓ (download data.json to publish to the live site)";
+  setTimeout(()=>{ msg.textContent = ""; }, 5000);
+});
+
+document.getElementById("downloadBtn").addEventListener("click", ()=>{
+  collectFromInputs();
+  const blob = new Blob([JSON.stringify(items, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "data.json";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById("resetBtn").addEventListener("click", async ()=>{
+  if (confirm("This will discard local changes and reload the original data.json. Continue?")){
+    localStorage.removeItem(STORAGE_KEY);
+    items = await (await fetch("data.json")).json();
+    renderTable();
+  }
+});
+
+async function init(){
+  items = await loadInventory();
+  renderTable();
+}
+
+// Stay logged in within the same tab session
+if (sessionStorage.getItem("mny_admin_ok") === "1"){
+  document.getElementById("gate").style.display = "none";
+  document.getElementById("panel").style.display = "block";
+  init();
+}
+</script>
+</body>
+</html>

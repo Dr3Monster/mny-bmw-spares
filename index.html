@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M&Y BMW Spares — Quality Second-Hand BMW Parts</title>
+<meta name="description" content="M&Y BMW Spares — second-hand BMW parts. Browse current stock by category and model.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="m-stripe"></div>
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <div class="roundel"></div>
+      <div>
+        <h1>M&amp;Y BMW Spares</h1>
+        <p>Second-hand BMW parts</p>
+      </div>
+    </div>
+    <nav class="site-nav">
+      <a href="index.html" class="active">Stock List</a>
+      <a href="admin.html">Staff Login</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <h2>Quality used BMW parts, checked and ready to fit.</h2>
+    <p>Browse what's currently in stock. Stock changes daily — give us a call to confirm fitment for your specific model before you drive out.</p>
+  </section>
+
+  <div class="toolbar">
+    <input type="search" id="search" placeholder="Search part name, model, or part code…">
+    <select id="categoryFilter">
+      <option value="">All categories</option>
+    </select>
+    <select id="stockFilter">
+      <option value="">All stock</option>
+      <option value="in">In stock only</option>
+      <option value="out">Out of stock only</option>
+    </select>
+  </div>
+
+  <div class="count-bar" id="countBar"></div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="emptyMsg" style="display:none;">No parts match your search. Try a different term or filter.</div>
+</main>
+
+<footer>
+  M&amp;Y BMW Spares · Stock list updates regularly · For pricing on collection &amp; delivery, please call or WhatsApp
+</footer>
+
+<script src="common.js"></script>
+<script>
+let allItems = [];
+
+function renderCategoryOptions(items){
+  const cats = [...new Set(items.map(i=>i.category))].sort();
+  const sel = document.getElementById("categoryFilter");
+  cats.forEach(c=>{
+    const opt = document.createElement("option");
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+function cardHTML(item){
+  const stockClass = item.inStock ? "in" : "out";
+  const stockLabel = item.inStock ? "In stock" : "Out of stock";
+  return `
+    <div class="card">
+      <span class="id">${item.id}</span>
+      <h3>${item.name}</h3>
+      <span class="model">Fits: ${item.model}</span>
+      <span class="badge ${stockClass}">${stockLabel}</span>
+      <span class="price">${formatPrice(item.price)}</span>
+      <span class="meta">Condition: ${item.condition}${item.inStock && item.qty ? ` · Qty: ${item.qty}` : ""}</span>
+      ${item.notes ? `<span class="notes">${item.notes}</span>` : ""}
+    </div>
+  `;
+}
+
+function applyFilters(){
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  const cat = document.getElementById("categoryFilter").value;
+  const stock = document.getElementById("stockFilter").value;
+
+  let filtered = allItems.filter(i=>{
+    const matchesQ = !q || (i.name+" "+i.model+" "+i.id+" "+i.category).toLowerCase().includes(q);
+    const matchesCat = !cat || i.category === cat;
+    const matchesStock = !stock || (stock === "in" ? i.inStock : !i.inStock);
+    return matchesQ && matchesCat && matchesStock;
+  });
+
+  const grid = document.getElementById("grid");
+  const empty = document.getElementById("emptyMsg");
+  document.getElementById("countBar").textContent = `Showing ${filtered.length} of ${allItems.length} parts`;
+
+  if (filtered.length === 0){
+    grid.innerHTML = "";
+    empty.style.display = "block";
+  } else {
+    empty.style.display = "none";
+    grid.innerHTML = filtered.map(cardHTML).join("");
+  }
+}
+
+async function init(){
+  allItems = await loadInventory();
+  renderCategoryOptions(allItems);
+  applyFilters();
+  document.getElementById("search").addEventListener("input", applyFilters);
+  document.getElementById("categoryFilter").addEventListener("change", applyFilters);
+  document.getElementById("stockFilter").addEventListener("change", applyFilters);
+}
+init();
+</script>
+</body>
+</html>

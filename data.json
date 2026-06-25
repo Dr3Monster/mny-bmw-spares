@@ -1,0 +1,134 @@
+[
+  {
+    "id": "ENG-001",
+    "name": "N20 2.0L Turbo Engine (Complete)",
+    "category": "Engine",
+    "model": "F30 320i",
+    "price": 28500,
+    "condition": "Used - Good",
+    "inStock": true,
+    "qty": 1,
+    "notes": "Tested running, 92,000km, compression checked."
+  },
+  {
+    "id": "ENG-002",
+    "name": "N47 2.0D Cylinder Head",
+    "category": "Engine",
+    "model": "E90 320d",
+    "price": 6200,
+    "condition": "Used - Good",
+    "inStock": true,
+    "qty": 2,
+    "notes": "Pressure tested, no cracks."
+  },
+  {
+    "id": "GBX-001",
+    "name": "6-Speed Manual Gearbox",
+    "category": "Gearbox",
+    "model": "E46 330i",
+    "price": 9500,
+    "condition": "Used - Fair",
+    "inStock": false,
+    "qty": 0,
+    "notes": "Sold - awaiting similar stock."
+  },
+  {
+    "id": "BDY-001",
+    "name": "Front Bumper (Pre-facelift)",
+    "category": "Body",
+    "model": "F30",
+    "price": 1850,
+    "condition": "Used - Good",
+    "inStock": true,
+    "qty": 3,
+    "notes": "Alpine White, minor scuff bottom edge."
+  },
+  {
+    "id": "BDY-002",
+    "name": "Left Headlight (Bi-Xenon)",
+    "category": "Body",
+    "model": "F10 5 Series",
+    "price": 3200,
+    "condition": "Used - Excellent",
+    "inStock": true,
+    "qty": 1,
+    "notes": "Clear lens, no condensation."
+  },
+  {
+    "id": "INT-001",
+    "name": "Leather Seat Set (Front & Rear)",
+    "category": "Interior",
+    "model": "E90",
+    "price": 4500,
+    "condition": "Used - Good",
+    "inStock": true,
+    "qty": 1,
+    "notes": "Black Dakota leather, light wear on driver bolster."
+  },
+  {
+    "id": "INT-002",
+    "name": "iDrive Controller & Screen",
+    "category": "Interior",
+    "model": "F30",
+    "price": 1650,
+    "condition": "Used - Good",
+    "inStock": false,
+    "qty": 0,
+    "notes": "Currently sold."
+  },
+  {
+    "id": "WHL-001",
+    "name": "18\" M Sport Alloy Set (4x)",
+    "category": "Wheels",
+    "model": "F30/F31",
+    "price": 7800,
+    "condition": "Used - Good",
+    "inStock": true,
+    "qty": 1,
+    "notes": "Style 397, one wheel has a refurbished kerb scrape."
+  },
+  {
+    "id": "ELC-001",
+    "name": "ECU (DME) N20",
+    "category": "Electrical",
+    "model": "F-Series",
+    "price": 2400,
+    "condition": "Used - Tested",
+    "inStock": true,
+    "qty": 2,
+    "notes": "Tested on bench, no fault codes."
+  },
+  {
+    "id": "ELC-002",
+    "name": "Alternator",
+    "category": "Electrical",
+    "model": "E90/E60",
+    "price": 1100,
+    "condition": "Used - Good",
+    "inStock": true,
+    "qty": 4,
+    "notes": "Tested under load."
+  },
+  {
+    "id": "SUS-001",
+    "name": "Front Strut Pair (Standard)",
+    "category": "Suspension",
+    "model": "E90",
+    "price": 980,
+    "condition": "Used - Good",
+    "inStock": true,
+    "qty": 2,
+    "notes": ""
+  },
+  {
+    "id": "EXH-001",
+    "name": "Sport Exhaust System (Rear Section)",
+    "category": "Exhaust",
+    "model": "F30 335i",
+    "price": 3100,
+    "condition": "Used - Good",
+    "inStock": false,
+    "qty": 0,
+    "notes": "Sold, similar fitment expected soon."
+  }
+]
